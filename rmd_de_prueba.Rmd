@@ -1,0 +1,50 @@
+---
+title: "Rmd de prueba"
+author: "Luis Andrés Rojas García Exp. 279465"
+date: "2022-09-26"
+output: html_document
+---
+
+
+```{r}
+data("ChickWeight")
+head(ChickWeight)
+```
+
+``` {r warnings=F, messages=F}
+library(ggplot2)
+library(plyr)
+library(viridis)
+```
+
+1. Hacer el analisis del promedio del peso de los pollitos por tipo de dieta
+
+```{r}
+pxd <- ddply(ChickWeight, c("Diet"), summarize,
+             N=length(weight),
+             mean_p = mean(weight),
+             sd = sd(weight),
+             se = sd/sqrt(N))
+pxd
+```
+
+2. Hacer la grafica
+
+```{r}
+grafica1 <- ggplot(data = pxd, 
+                   aes( x = Diet, y = mean_p, fill = Diet)) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  geom_errorbar(aes(ymin=mean_p-se, ymax=mean_p+se), width=.2,
+                 position=position_dodge(.9)) +
+  labs(y = "Promedio de lo pesos", x = "Tipo de dieta", fill="Tipo de Dieta") +
+  ggtitle("Promedio del peso de los pollitos x tipo de dieta") +
+  theme(plot.title = element_text(hjust = 0.5))+
+  theme(panel.background = element_rect(fill = "white"), 
+        axis.line = element_line(colour = "black", size = 1)) +
+  scale_fill_viridis(discrete = T) +
+  scale_x_discrete(labels =c("1"="Dieta 1", "2"="Dieta 2", "3"="Dieta 3",
+                             "4"="Dieta 4"))
+png("grafica1.png")
+plot(grafica1)
+dev.off()
+``` 
